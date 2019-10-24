@@ -1,1 +1,1 @@
-from .GifProgressor import GifProgressor, Position
+from .GifProgressor import Progressor, Position
