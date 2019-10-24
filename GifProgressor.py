@@ -6,7 +6,7 @@ from PIL import Image, ImageSequence
 #  8|   |11
 #  9+---+12
 #   4 5 6
-class Postion(object):
+class Position(object):
     topLeft = 1
     top = 2
     topRight = 3
@@ -24,7 +24,7 @@ class Postion(object):
 class Progressor(object):
 
     def __init__(self):
-        self._pos = Postion.bottom
+        self._pos = Position.bottom
         self._color = (0, 0, 0, 255)
         self._frames = None
 
