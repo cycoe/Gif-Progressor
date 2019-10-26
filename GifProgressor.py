@@ -23,9 +23,10 @@ class Position(object):
 
 class Progressor(object):
 
-    def __init__(self):
-        self._pos = Position.bottom
-        self._color = (0, 0, 0, 255)
+    def __init__(self, pos=Position.bottom, color=(0, 0, 0, 255), width=2):
+        self._pos = pos
+        self._color = color
+        self._width = width
         self._frames = None
 
     def setPosition(self, pos):
@@ -101,9 +102,11 @@ class Progressor(object):
             print(e)
             return False
 
-        frames = [frame.convert('RGB') for frame in ImageSequence.Iterator(img)]
+        frames = [frame.convert('RGBA')
+                  for frame in ImageSequence.Iterator(img)]
         for index in range(len(frames)):
-            frames[index] = self._handleFrame( frames[index], index / len(frames))
+            frames[index] = self._handleFrame(
+                frames[index], index / len(frames))
 
         self._frames = frames
         return True
