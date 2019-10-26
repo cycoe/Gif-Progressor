@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image, ImageSequence
 
+from Color import Color
+
 #   1 2 3
 #  7+---+10
 #  8|   |11
@@ -24,9 +26,9 @@ class Position(object):
 class Progressor(object):
 
     def __init__(self, pos=Position.bottom, color=(0, 0, 0, 255), width=2):
-        self._pos = pos
-        self._color = color
-        self._width = width
+        self.setPosition(pos)
+        self.setColor(color)
+        self.setWidth(width)
         self._frames = None
 
     def setPosition(self, pos):
@@ -39,7 +41,11 @@ class Progressor(object):
         """Set color with type (R, G, B, A)
         :color: tuple<uint8>[4]
         """
-        self._color = color
+        self._color = Color.handle(color)
+        return self
+
+    def setWidth(self, width):
+        self._width = width if width >= 1 else 1
         return self
 
     def _getGeo(self, frame, percent):
@@ -53,7 +59,7 @@ class Progressor(object):
         geo = [0, 0, 0, 0]
 
         if (self._pos < 7):
-            geo[2] = size[0] * percent
+            geo[2] = int(size[0] * percent)
             geo[3] = self._width if self._width < size[1] else size[1]
             geo[1] = 0 if self._pos < 4 else size[1] - geo[3]
             if self._pos % 3 == 1:
@@ -63,7 +69,7 @@ class Progressor(object):
             else:
                 geo[0] = size[0] - geo[2]
         else:
-            geo[3] = size[1] * percent
+            geo[3] = int(size[1] * percent)
             geo[2] = self._width if self._width < size[0] else size[0]
             geo[0] = 0 if self._pos < 10 else size[0] - geo[2]
             if self._pos % 3 == 1:
@@ -106,7 +112,7 @@ class Progressor(object):
                   for frame in ImageSequence.Iterator(img)]
         for index in range(len(frames)):
             frames[index] = self._handleFrame(
-                frames[index], index // len(frames))
+                frames[index], index / len(frames))
 
         self._frames = frames
         return True
@@ -114,6 +120,7 @@ class Progressor(object):
     def save(self, path):
         if self._frames is None:
             print("No frames!")
+            return self
 
         self._frames[0].save(path, save_all=True, append_images=self._frames)
         return self
