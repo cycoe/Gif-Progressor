@@ -112,7 +112,7 @@ class Progressor(object):
                   for frame in ImageSequence.Iterator(img)]
         for index in range(len(frames)):
             frames[index] = self._handleFrame(
-                frames[index], index / len(frames))
+                frames[index], (index + 1) / len(frames))
 
         self._frames = frames
         return True
