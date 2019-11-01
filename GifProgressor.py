@@ -1,34 +1,35 @@
 import numpy as np
 from PIL import Image, ImageSequence
 
-from .Color import Color
+from Color import Color
 
-#   1 2 3
-#  7+---+10
-#  8|   |11
-#  9+---+12
-#   4 5 6
+#   0 1 2
+#  6+---+9
+#  7|   |10
+#  8+---+11
+#   3 4 5
 class Position(object):
-    topLeft = 1
-    top = 2
-    topRight = 3
-    bottomLeft = 4
-    bottom = 5
-    bottomRight = 6
-    leftTop = 7
-    left = 8
-    leftBottom = 9
-    rightTop = 10
-    right = 11
-    rightBottom = 12
+    topLeft = 0
+    top = 1
+    topRight = 2
+    bottomLeft = 3
+    bottom = 4
+    bottomRight = 5
+    leftTop = 6
+    left = 7
+    leftBottom = 8
+    rightTop = 9
+    right = 10
+    rightBottom = 11
 
 
 class Progressor(object):
 
-    def __init__(self, pos=Position.bottom, color=(0, 0, 0, 255), width=2):
+    def __init__(self, pos=Position.bottom, color=(0, 0, 0, 255), width=None):
         self.setPosition(pos)
         self.setColor(color)
         self.setWidth(width)
+        self.setMinWidth(2)
         self._frames = None
 
     def setPosition(self, pos):
@@ -45,7 +46,11 @@ class Progressor(object):
         return self
 
     def setWidth(self, width):
-        self._width = width if width >= 1 else 1
+        self._width = width
+        return self
+
+    def setMinWidth(self, minWidth):
+        self._minWidth = minWidth
         return self
 
     def _getGeo(self, frame, percent):
@@ -58,26 +63,23 @@ class Progressor(object):
         size = frame.size
         geo = [0, 0, 0, 0]
 
-        if (self._pos < 7):
-            geo[2] = int(size[0] * percent)
-            geo[3] = self._width if self._width < size[1] else size[1]
-            geo[1] = 0 if self._pos < 4 else size[1] - geo[3]
-            if self._pos % 3 == 1:
-                geo[0] = 0
-            elif self._pos % 3 == 2:
-                geo[0] = (size[0] - geo[2]) // 2
-            else:
-                geo[0] = size[0] - geo[2]
+        group = self._pos // 6
+        if (self._width is None):
+            self._width = size[1 - group] // 20
+        if (self._width < self._minWidth):
+            self._width = self._minWidth
+        if (self._width > size[1 - group]):
+            self._width = size[1 - group]
+
+        geo[2 + group] = int(size[group] * percent)
+        geo[3 - group] = self._width
+        geo[1 - group] = 0 if self._pos < 3 + 6 * group else size[1 - group] - self._width
+        if self._pos % 3 == 0:
+            geo[group] = 0
+        elif self._pos % 3 == 1:
+            geo[group] = (size[group] - geo[group + 2]) // 2
         else:
-            geo[3] = int(size[1] * percent)
-            geo[2] = self._width if self._width < size[0] else size[0]
-            geo[0] = 0 if self._pos < 10 else size[0] - geo[2]
-            if self._pos % 3 == 1:
-                geo[1] = 0
-            elif self._pos % 3 == 2:
-                geo[1] = (size[1] - geo[3]) // 2
-            else:
-                geo[1] = size[1] - geo[3]
+            geo[group] = (size[group] - geo[group + 2])
 
         return tuple(geo)
 
