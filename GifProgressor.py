@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image, ImageSequence
 
-from Color import Color
+from .Color import Color
 
 #   0 1 2
 #  6+---+9
